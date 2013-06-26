@@ -12,7 +12,9 @@ function StarCanvasCtrl($scope) {
   };
 
   function addColor() {
-    this.colors.unshift('#ffffff');
+    this.colors.unshift({
+      value: '#ffffff'
+    });
   }
 }
 
