@@ -6,14 +6,14 @@
     <script src='star-canvas.js'></script>
   </head>
   <body>
-    <div id='control-panel' ng-controller='StarCanvasCtrl' class='clearfix'>
+    <div id='control-panel' ng-controller='Controller' class='clearfix'>
       <div ng-click='addSection()' class='color-section new'>+</div>
       <div ng-repeat='section in sections' class='color-section clearfix'>
         <div ng-click='section.addColor()' class='color-section-item'>
           <div class='new-color-section-item'>+</div>
         </div>
         <div ng-repeat='color in section.colors' class='color-section-item'>
-          <input class='color-picker' type='color' ng-model='color.value'>
+          <input class='color-picker' type='color' ng-model='color.value' ng-change='color.change()'>
         </div>
       </div>
     </div>

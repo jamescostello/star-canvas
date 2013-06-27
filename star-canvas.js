@@ -1,4 +1,23 @@
-function StarCanvasCtrl($scope) {
+function Controller($scope) {
+  var canvas = document.getElementById('canvas'),
+      context = canvas.getContext('2d'),
+      levelCount = 25,
+      sectionCount = 8,
+      sideLength = 50,
+      eighthPi = Math.PI / sectionCount,
+      x = sideLength * Math.cos(3 * eighthPi),
+      y = sideLength * Math.sin(3 * eighthPi),
+      isChanging = false,
+      red,
+      green,
+      blue,
+      color,
+      rDelta,
+      gDelta,
+      bDelta,
+      color1,
+      color2;
+
   $scope.sections = [];
 
   $scope.addSection = function () {
@@ -13,76 +32,41 @@ function StarCanvasCtrl($scope) {
 
   function addColor() {
     this.colors.unshift({
-      value: '#ffffff'
+      value: '#ffffff',
+      change: function () {
+        isChanging = true;
+      }
     });
   }
-}
-
-
-(function () {
-  var colorPicker1 = document.getElementById('color-picker-1'),
-      colorPicker2 = document.getElementById('color-picker-2');
-
-  var color1,
-      color2;
-
-  colorPicker1.onchange = function () {
-    color1 = {
-      r: parseInt(colorPicker1.value.slice(1, 3), 16),
-      g: parseInt(colorPicker1.value.slice(3, 5), 16),
-      b: parseInt(colorPicker1.value.slice(5, 7), 16)
-    };
-  };
-
-  colorPicker2.onchange = function () {
-    color2 = {
-      r: parseInt(colorPicker2.value.slice(1, 3), 16),
-      g: parseInt(colorPicker2.value.slice(3, 5), 16),
-      b: parseInt(colorPicker2.value.slice(5, 7), 16)
-    };
-  };
-
-  colorPicker1.onchange();
-  colorPicker2.onchange();
-
-
-
-  function ColorSection() {
-    
-  }
-
-
-
-  var canvas = document.getElementById('canvas'),
-      context = canvas.getContext('2d'),
-      levelCount = 25,
-      sectionCount = 8,
-      sideLength = 50,
-      eighthPi = Math.PI / sectionCount,
-      x = sideLength * Math.cos(3 * eighthPi),
-      y = sideLength * Math.sin(3 * eighthPi),
-      red,
-      green,
-      blue,
-      color,
-      rDelta,
-      gDelta,
-      bDelta;
 
   function draw() {
+    if (!$scope.sections.length)
+      return;
+
+    color1 = {
+      r: parseInt($scope.sections[0].colors[0].value.slice(1, 3), 16),
+      g: parseInt($scope.sections[0].colors[0].value.slice(3, 5), 16),
+      b: parseInt($scope.sections[0].colors[0].value.slice(5, 7), 16)
+    },
+    color2 = {
+      r: parseInt($scope.sections[0].colors[1].value.slice(1, 3), 16),
+      g: parseInt($scope.sections[0].colors[1].value.slice(3, 5), 16),
+      b: parseInt($scope.sections[0].colors[1].value.slice(5, 7), 16)
+    };
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     context.translate(canvas.width / 2, canvas.height / 2);
 
-    rDelta = ((color2.r - color1.r) / 10),
-    gDelta = ((color2.g - color1.g) / 10),
-    bDelta = ((color2.b - color1.b) / 10);
+    rDelta = ((color1.r - color2.r) / 10),
+    gDelta = ((color1.g - color2.g) / 10),
+    bDelta = ((color1.b - color2.b) / 10);
 
     for (var level = 0; level <= levelCount; level++) {
-      red = parseInt(color2.r - level * rDelta);
-      green = parseInt(color2.g - level * gDelta);
-      blue = parseInt(color2.b - level * bDelta);
+      red = parseInt(color1.r - level * rDelta);
+      green = parseInt(color1.g - level * gDelta);
+      blue = parseInt(color1.b - level * bDelta);
       color = 'rgb(' + red + ',' + green + ',' + blue + ')';
 
       for (var section = 1; section <= sectionCount; section++) {
@@ -115,8 +99,14 @@ function StarCanvasCtrl($scope) {
     }
   }
 
-  (function animationloop(){
-    //window.requestAnimationFrame(animationloop);
-    draw();
+  // Using animation loop to passiving respond to change.
+  // Using draw() as the onChange function calls draw too frequently and transition isn't as smooth.
+  (function animationloop() {
+    window.requestAnimationFrame(animationloop);
+
+    if (isChanging) {
+      draw();
+      isChanging = false;
+    }
   })();
-})
+}
