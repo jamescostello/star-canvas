@@ -1,3 +1,7 @@
+// TODO:
+// Fix higher section counts (12 would be better).
+// Add colors to hash as they change.
+
 function Controller($scope) {
   var canvas = document.getElementById('canvas'),
       context = canvas.getContext('2d'),
@@ -28,6 +32,8 @@ function Controller($scope) {
 
     $scope.sections[0].addColor();
     $scope.sections[0].addColor();
+
+    isChanging = true;
   };
 
   function addColor() {
@@ -37,38 +43,20 @@ function Controller($scope) {
         isChanging = true;
       }
     });
+
+    isChanging = true;
   }
 
   function draw() {
     if (!$scope.sections.length)
       return;
 
-    color1 = {
-      r: parseInt($scope.sections[0].colors[0].value.slice(1, 3), 16),
-      g: parseInt($scope.sections[0].colors[0].value.slice(3, 5), 16),
-      b: parseInt($scope.sections[0].colors[0].value.slice(5, 7), 16)
-    },
-    color2 = {
-      r: parseInt($scope.sections[0].colors[1].value.slice(1, 3), 16),
-      g: parseInt($scope.sections[0].colors[1].value.slice(3, 5), 16),
-      b: parseInt($scope.sections[0].colors[1].value.slice(5, 7), 16)
-    };
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     context.translate(canvas.width / 2, canvas.height / 2);
 
-    rDelta = ((color1.r - color2.r) / 10),
-    gDelta = ((color1.g - color2.g) / 10),
-    bDelta = ((color1.b - color2.b) / 10);
-
     for (var level = 0; level <= levelCount; level++) {
-      red = parseInt(color1.r - level * rDelta);
-      green = parseInt(color1.g - level * gDelta);
-      blue = parseInt(color1.b - level * bDelta);
-      color = 'rgb(' + red + ',' + green + ',' + blue + ')';
-
       for (var section = 1; section <= sectionCount; section++) {
         for (var column = -level; column <= level; column+=2) {
           // Save current rotation and translation.
@@ -85,6 +73,28 @@ function Controller($scope) {
           context.lineTo(0, 2 * y);
           context.lineTo(-x, y);
           context.closePath();
+
+          // Compute color.
+          var sectionIndex = section % $scope.sections.length;
+          color1 = {
+            r: parseInt($scope.sections[sectionIndex].colors[0].value.slice(1, 3), 16),
+            g: parseInt($scope.sections[sectionIndex].colors[0].value.slice(3, 5), 16),
+            b: parseInt($scope.sections[sectionIndex].colors[0].value.slice(5, 7), 16)
+          };
+          color2 = {
+            r: parseInt($scope.sections[sectionIndex].colors[1].value.slice(1, 3), 16),
+            g: parseInt($scope.sections[sectionIndex].colors[1].value.slice(3, 5), 16),
+            b: parseInt($scope.sections[sectionIndex].colors[1].value.slice(5, 7), 16)
+          };
+
+          rDelta = ((color1.r - color2.r) / 10),
+          gDelta = ((color1.g - color2.g) / 10),
+          bDelta = ((color1.b - color2.b) / 10);
+
+          red = parseInt(color1.r - level * rDelta);
+          green = parseInt(color1.g - level * gDelta);
+          blue = parseInt(color1.b - level * bDelta);
+          color = 'rgb(' + red + ',' + green + ',' + blue + ')';
 
           // Outline and color diamond.
           context.strokeStyle = color;
